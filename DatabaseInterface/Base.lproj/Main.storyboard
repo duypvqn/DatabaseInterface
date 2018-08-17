@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="DatabaseInterface" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="XpH-SA-tDa">
+                                <rect key="frame" x="0.0" y="20" width="375" height="546"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </tableView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Twn-OY-208">
+                                <rect key="frame" x="9" y="596" width="174" height="30"/>
+                                <color key="backgroundColor" red="0.0" green="0.46666666670000001" blue="0.75294117650000003" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" title="RealmDB">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="realmDBWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="LGm-Zs-x7p"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wQt-y2-0P1">
+                                <rect key="frame" x="266" y="596" width="100" height="30"/>
+                                <color key="backgroundColor" red="0.0" green="0.46666666670000001" blue="0.75294117650000003" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="Gmt-YD-kFI"/>
+                                </constraints>
+                                <state key="normal" title="SQLiteDB">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="SQliteDBWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Rtu-b5-Ul0"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="wQt-y2-0P1" firstAttribute="top" secondItem="XpH-SA-tDa" secondAttribute="bottom" constant="30" id="0JI-eH-6dp"/>
+                            <constraint firstItem="wQt-y2-0P1" firstAttribute="leading" secondItem="Twn-OY-208" secondAttribute="trailing" constant="83" id="5No-9C-7R0"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="wQt-y2-0P1" secondAttribute="trailing" constant="9" id="ABc-gB-qud"/>
+                            <constraint firstItem="Twn-OY-208" firstAttribute="top" secondItem="XpH-SA-tDa" secondAttribute="bottom" constant="30" id="B7I-3w-etZ"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="wQt-y2-0P1" secondAttribute="bottom" constant="41" id="BF0-ie-FvK"/>
+                            <constraint firstItem="XpH-SA-tDa" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Bvv-Dl-Ef2"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Twn-OY-208" secondAttribute="bottom" constant="41" id="TOc-zt-af3"/>
+                            <constraint firstItem="Twn-OY-208" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="9" id="diX-9F-0ga"/>
+                            <constraint firstItem="XpH-SA-tDa" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="iWm-BN-EP3"/>
+                            <constraint firstItem="XpH-SA-tDa" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="nim-Ua-1xf"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                    <connections>
+                        <outlet property="tableView" destination="XpH-SA-tDa" id="tIU-L0-fKg"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="117.59999999999999" y="117.39130434782609"/>
+        </scene>
+    </scenes>
+</document>
