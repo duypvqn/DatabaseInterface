@@ -35,6 +35,28 @@ extension NSObject{
         return nil
     }
     
+    func getPropertiesNameAndType()->[(String, String)]{
+        var arrayProp = [(String, String)]()
+        func addProperty(mirror: Mirror){
+            for (_, attr) in mirror.children.enumerated() {
+                if let property_name = attr.label as String? {
+                    let newProp = (property_name, String(describing: type(of: attr.value)))
+                    arrayProp.append(newProp)
+                }
+            }
+        }
+        
+        let mirrored_object = Mirror(reflecting: self)
+        addProperty(mirror: mirrored_object)
+        var parent = mirrored_object.superclassMirror
+        while parent != nil {
+            addProperty(mirror: parent!)
+            parent = parent!.superclassMirror
+        }
+        
+        return arrayProp
+    }
+    
     func getPropertiesName()->[String]{
         var arrayProp = [String]()
         func addProperty(mirror: Mirror){
