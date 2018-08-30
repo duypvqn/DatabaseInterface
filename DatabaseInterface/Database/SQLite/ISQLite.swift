@@ -13,7 +13,7 @@ import SQLite
 
 class ISQLiteConstant {
     struct Query {
-        static let AlertTable = "ALTER TABLE %@ ADD COLUMN %@ %@"
+        static let AlertAddColumn = "ALTER TABLE %@ ADD COLUMN %@ %@"
         static let DropAndCreateTable = "DROP TABLE IF EXISTS %@; CREATE TABLE %@ (%@);"
         static let CreateTable = "CREATE TABLE IF NOT EXISTS %@ (%@)"
         static let DropTable = "DROP TABLE IF EXISTS %@"
@@ -72,7 +72,8 @@ class ISQLite : NSObject, DBProtocol {
         }
         
         var result = true
-        dbQueue.inTransaction { (db, roolback) in
+        let queue = insDBQueue()
+        queue.inTransaction { (db, roolback) in
             let firstObject = array.first!
             let propertiesName = firstObject.getPropertiesName()
             let tableName = firstObject.tableName()
@@ -119,7 +120,8 @@ class ISQLite : NSObject, DBProtocol {
         let tableName = array.first!.tableName()
         let propNames = array.first!.getPropertiesName()
         let unquieKeys = array.first!.uniqueKeys()
-        dbQueue.inTransaction { (db, rollback) in
+        let queue = insDBQueue()
+        queue.inTransaction { (db, rollback) in
             for object in array {
                 var condition = ""
                 if let unquieKeys = unquieKeys {
@@ -184,11 +186,58 @@ class ISQLite : NSObject, DBProtocol {
         let arrResult : [T] = ISQLite.excuteQuery(query: query)
         return arrResult
     }
+    
+    static func beginTransaction(action:@escaping (_ db:FMDatabase,_ rollback: inout Bool)->Void){
+        let queue = insDBQueue()
+        queue.inTransaction { (db, rb) in
+            var rollback = false
+            action(db, &rollback)
+            if rollback {
+                rb.pointee = true
+            }
+        }
+    }
+    
+    static func currentDBVer()->Int{
+        let queue = insDBQueue()
+        var version = 0
+        queue.inDatabase { (db) in
+            let query = "PRAGMA user_version"
+            do {
+                let resultSet = try db.executeQuery(query, values: nil)
+                while resultSet.next() {
+                    version = Int(resultSet.int(forColumnIndex: 0))
+                }
+            }
+            catch {
+                debugPrint("get version fail \(error.localizedDescription)")
+                
+            }
+        }
+        return version
+    }
+    
+    static func setDBVer(newVer:UInt64)->Bool{
+        let queue = insDBQueue()
+        queue.inDatabase { (db) in
+            let opaquePtr = OpaquePointer(db.sqliteHandle)
+            let result = sqlite3_exec(opaquePtr, "PRAGMA user_version = \(newVer)", nil, nil, nil);
+            debugPrint("update db version, result : \(result)")
+        }
+        return true
+    }
 }
 
 //MARK: - Implement
 extension ISQLite {
-    static let dbQueue = FMDatabaseQueue(path: getDBPath())
+    //TODO: Init Database
+    private static var dbQueue : FMDatabaseQueue!
+    static func insDBQueue()->FMDatabaseQueue {
+        if dbQueue == nil {
+            dbQueue = FMDatabaseQueue(path: getDBPath())
+        }
+        return dbQueue
+    }
     
     static func getDBPath()->String{
         let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
@@ -196,9 +245,11 @@ extension ISQLite {
         return dbPath!
     }
     
+    //TODO: Execute
     static func excuteUpdate(query:String)->Bool {
         var result = false
-        dbQueue.inDatabase { (db) in
+        let queue = insDBQueue()
+        queue.inDatabase { (db) in
             do {
                 try db.executeUpdate(query, values: nil)
                 result = true
@@ -212,7 +263,8 @@ extension ISQLite {
     
     static func multipleStatementUpdate(query:String)->Bool {
         var result = false
-        dbQueue.inDatabase { (db) in
+        let queue = insDBQueue()
+        queue.inDatabase { (db) in
             result = db.executeStatements(query)
         }
         return result
@@ -220,7 +272,8 @@ extension ISQLite {
     
     static func excuteQuery<T:BaseObject>(query:String) ->[T] {
         var arrayResult = [T]()
-        dbQueue.inDatabase { (db) in
+        let queue = insDBQueue()
+        queue.inDatabase { (db) in
             do {
                 let resultSet = try db.executeQuery(query, values: nil)
                 while resultSet.next() {
@@ -246,6 +299,7 @@ extension ISQLite {
 
 //MARK: - SUPPORT FUNCTIONS
 extension ISQLite {
+    //TODO: -
     static func columnsDefine(fromModel type:BaseObject.Type)->String{
         let object = type.init()
         var columnsDef = "id INTEGER PRIMARY KEY"
@@ -293,4 +347,5 @@ extension ISQLite {
     static func deleteObject(object : BaseObject, uniqueKey:[String]){
         
     }
+    
 }

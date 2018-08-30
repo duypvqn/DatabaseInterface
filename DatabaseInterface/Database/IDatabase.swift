@@ -14,6 +14,7 @@
  2)
  */
 import Foundation
+import FMDB
 
 enum DBType : Int {
     case SQLite = 0, Realm, CoreData
@@ -32,6 +33,28 @@ public protocol DBProtocol : NSObjectProtocol {
     static func deleteObjs(array:[BaseObject])->Bool
     
     static func fetchObjs<T:BaseObject>(condition: String) -> [T]
+    
+    //only SQLite
+    static func beginTransaction(action:@escaping (_ db:FMDatabase,_ rollback: inout Bool)->Void)
+    
+    static func currentDBVer()->Int
+    
+    static func setDBVer(newVer:UInt64)->Bool
+}
+
+extension DBProtocol {
+    //only SQLite
+    static func beginTransaction(action:@escaping (_ db:FMDatabase,_ rollback: inout Bool)->Void){
+        
+    }
+    
+    static func currentDBVer()->Int{
+        return 0
+    }
+    
+    static func setDBVer(newVer:UInt64)->Bool{
+        return false
+    }
 }
 
 public class IDatabase {
@@ -78,4 +101,25 @@ public class IDatabase {
     }
 }
 
-
+//MARK: - SQLite
+extension IDatabase {
+    public class func currentDBVer()->Int{
+        if db == ISQLite.self {
+            return db.currentDBVer()
+        }
+        return 0
+    }
+    
+    public class func setDBVer(newVer:UInt64)->Bool{
+        if db == ISQLite.self {
+            return ISQLite.setDBVer(newVer:newVer)
+        }
+        return false
+    }
+    
+    public class func beginTransaction(action:@escaping (_ db:FMDatabase,_ rollback: inout Bool)->Void){
+        if db == ISQLite.self {
+            db.beginTransaction(action: action)
+        }
+    }
+}

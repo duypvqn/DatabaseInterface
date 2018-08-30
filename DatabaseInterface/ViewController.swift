@@ -13,6 +13,9 @@ import RealmSwift
 class ViewController: UIViewController {
     @IBOutlet weak var tableView:UITableView!
     
+    static let realmCurVersion = "RealmCurrentVersion"
+    static let sqliteCurVersion = "SQLiteCurrentVersion"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -42,6 +45,10 @@ class ViewController: UIViewController {
         IDatabase.db = IRealm.self
         IDatabase.curVer = 2
         IDatabase.dbFileName = "DBInterface"
+        if UserDefaults.standard.value(forKey: ViewController.realmCurVersion) == nil {
+            UserDefaults.standard.set(0, forKey: ViewController.realmCurVersion)
+        }
+        
         IDatabase.migrationAction = {
             let config = Realm.Configuration(
                 schemaVersion:IDatabase.curVer,
@@ -67,12 +74,63 @@ class ViewController: UIViewController {
             tableView.isHidden = false
             tableView.reloadData()
         }
-        
+        let newVer : UInt64 = 2
         IDatabase.db = ISQLite.self
         IDatabase.dbFileName = "DBInterface"
-        IDatabase.migrationAction = {
+        IDatabase.curVer = newVer
+        
+        let curVer = IDatabase.currentDBVer()
+        if curVer < newVer {
             //sqlite
+            IDatabase.beginTransaction(action: { (db, rollback) in
+                if curVer < 1 {
+                    //add two columns: createDate and updateDate
+                    let columns = ["age", "birth"]
+                    let types = [ISQLiteConstant.DBValueType.Int, ISQLiteConstant.DBValueType.Text]
+                    let tableName = DAOUser.tableName()
+                    do {
+                        for (i,col) in columns.enumerated() {
+                            let type = types[i]
+                            if db.columnExists(col, inTableWithName: tableName) == false{
+                                let query = String(format: ISQLiteConstant.Query.AlertAddColumn, tableName, col, type)
+                                
+                                try db.executeUpdate(query, values: nil)
+                            }
+                        }
+                    }
+                    catch {
+                        debugPrint("table: \(tableName) add column fail: \(error.localizedDescription)")
+                        rollback = true
+                        return
+                    }
+                }
+                
+                if curVer < 2 {
+                    //add two columns: createDate and updateDate
+                    let columns = ["address"]
+                    let types = [ISQLiteConstant.DBValueType.Text]
+                    let tableName = DAOUser.tableName()
+                    do {
+                        for (i,col) in columns.enumerated() {
+                            let type = types[i]
+                            if db.columnExists(col, inTableWithName: tableName) == false{
+                                let query = String(format: ISQLiteConstant.Query.AlertAddColumn, tableName, col, type)
+
+                                try db.executeUpdate(query, values: nil)
+                            }
+                        }
+                    }
+                    catch {
+                        debugPrint("table: \(tableName) add column fail: \(error.localizedDescription)")
+                        rollback = true
+                        return
+                    }
+                }
+            })
             
+            if IDatabase.setDBVer(newVer: newVer) == false {
+                debugPrint("set version fail")
+            }
         }
     }
 }

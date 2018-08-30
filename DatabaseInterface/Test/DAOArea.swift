@@ -17,6 +17,7 @@ class DAOArea: BaseObject {
     
     @objc dynamic var areaId = ""
     @objc dynamic var areaName = ""
+    
     @objc dynamic var isActivated = 1
     
     override static func primaryKey()->String?{
